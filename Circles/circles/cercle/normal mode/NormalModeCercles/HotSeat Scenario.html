@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Cercles — Hot Seat Scenario</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 100%; height: 100%; background: #f4ecd8;
+    font-family: 'Inter', system-ui, sans-serif;
+    display: flex; align-items: center; justify-content: center;
+  }
+  button { font-family: inherit; }
+  @keyframes cc-pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50%       { transform: scale(1.5); opacity: 0.35; }
+  }
+  @keyframes cc-slide-up {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+  }
+  @keyframes cc-blink { 50% { opacity: 0; } }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+
+const { useState, useEffect } = React;
+
+// ─── Theme ────────────────────────────────────────────────────
+const T = {
+  bg: '#f4ecd8', bgAlt: '#ebdfc1', ink: '#1a1410', inkSoft: '#5a4a35',
+  paper: '#fbf6e8', primary: '#ff5a3c', primaryFg: '#fbf6e8',
+  radius: 24, radiusSm: 14,
+  fontDisplay: '"Space Grotesk", system-ui, sans-serif',
+  fontBody: 'Inter, system-ui, sans-serif',
+  fontMono: '"JetBrains Mono", monospace',
+  displayWeight: 700, letterSpacing: '-0.02em',
+  cardBorder: '1.5px solid #1a1410',
+  cardShadow: '4px 4px 0 #1a1410',
+  accents: { coral: '#ff5a3c', lime: '#c8e84a', cobalt: '#2d4cf5', yellow: '#ffc83a', plum: '#7a3a8a' },
+};
+
+// ─── Cast ─────────────────────────────────────────────────────
+const PLAYERS = [
+  { id: 'kenza', name: 'Kenza', color: T.accents.coral,  side: 'FOR' },
+  { id: 'adam',  name: 'Adam',  color: T.accents.cobalt, side: 'FOR' },
+  { id: 'imane', name: 'Imane', color: T.accents.yellow, side: 'FOR' },
+  { id: 'reda',  name: 'Reda',  color: T.accents.plum,   side: 'FOR' },
+  { id: 'yas',   name: 'Yas',   color: T.accents.lime,   side: 'AGAINST' },
+];
+const HOT_SEAT = PLAYERS.find(p => p.id === 'yas');
+const OTHERS   = PLAYERS.filter(p => p.id !== 'yas');
+const SPEAKER  = PLAYERS.find(p => p.id === 'kenza');
+const TOPIC    = '"Long-distance relationships never work."';
+
+// ─── Tiny helpers ─────────────────────────────────────────────
+function Btn({ children, onClick, variant = 'primary', full = false, size = 'md', style = {} }) {
+  const h = size === 'lg' ? 60 : size === 'sm' ? 36 : 52;
+  const fs = size === 'lg' ? 18 : size === 'sm' ? 13 : 16;
+  const isPrimary = variant === 'primary';
+  const isOutline = variant === 'outline';
+  return (
+    <button onClick={onClick} style={{
+      height: h, padding: `0 ${size === 'sm' ? 14 : 24}px`,
+      borderRadius: 999, width: full ? '100%' : 'auto',
+      fontFamily: T.fontDisplay, fontWeight: 700, fontSize: fs,
+      letterSpacing: T.letterSpacing, cursor: 'pointer',
+      border: isPrimary ? T.cardBorder : isOutline ? `1.5px solid ${T.ink}` : 'none',
+      background: isPrimary ? T.primary : 'transparent',
+      color: isPrimary ? T.primaryFg : T.ink,
+      boxShadow: isPrimary ? T.cardShadow : 'none',
+      display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+      ...style,
+    }}>{children}</button>
+  );
+}
+
+function Card({ children, padding = 16, color, style = {}, onClick }) {
+  return (
+    <div onClick={onClick} style={{
+      background: color || T.paper, borderRadius: T.radius,
+      border: T.cardBorder, boxShadow: T.cardShadow,
+      padding, ...style,
+    }}>{children}</div>
+  );
+}
+
+function Avatar({ p, size = 40 }) {
+  return (
+    <div style={{
+      width: size, height: size, borderRadius: '50%', background: p.color,
+      color: T.ink, display: 'flex', alignItems: 'center', justifyContent: 'center',
+      fontFamily: T.fontDisplay, fontWeight: 700, fontSize: size * 0.44,
+      flexShrink: 0,
+    }}>{p.name[0]}</div>
+  );
+}
+
+function TopBar({ label, right }) {
+  return (
+    <div style={{
+      padding: '18px 20px 6px',
+      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+    }}>
+      <div style={{ fontFamily: T.fontMono, fontSize: 11, letterSpacing: 2, color: T.inkSoft }}>{label}</div>
+      {right && <div style={{ fontFamily: T.fontMono, fontSize: 11, color: T.ink, fontWeight: 700 }}>{right}</div>}
+    </div>
+  );
+}
+
+function TopicChip() {
+  return (
+    <div style={{
+      margin: '6px 20px 0', padding: '10px 14px', borderRadius: T.radius,
+      background: T.paper, border: T.cardBorder,
+      fontFamily: T.fontDisplay, fontWeight: 500, fontSize: 14,
+      color: T.ink, letterSpacing: T.letterSpacing, textAlign: 'center', lineHeight: 1.3,
+    }}>{TOPIC}</div>
+  );
+}
+
+// ─── Circle Diagram ───────────────────────────────────────────
+function CircleDiagram({ highlightYou = null, size = 296 }) {
+  const r = size / 2 - 34;
+  return (
+    <div style={{ position: 'relative', width: size, height: size, flexShrink: 0 }}>
+      <svg viewBox={`0 0 ${size} ${size}`} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={T.ink} strokeWidth="1.2" strokeDasharray="3 5" opacity="0.3" />
+        {OTHERS.map((p, i) => {
+          const a = (i / OTHERS.length) * Math.PI * 2 - Math.PI / 2;
+          const x = size/2 + Math.cos(a) * r;
+          const y = size/2 + Math.sin(a) * r;
+          const isSpeaker = p.id === SPEAKER.id;
+          return (
+            <line key={p.id}
+              x1={size/2} y1={size/2} x2={x} y2={y}
+              stroke={isSpeaker ? T.primary : T.inkSoft}
+              strokeWidth={isSpeaker ? 2.5 : 1}
+              opacity={isSpeaker ? 0.9 : 0.18}
+              strokeDasharray={isSpeaker ? 'none' : '2 4'} />
+          );
+        })}
+      </svg>
+
+      {/* outer avatars */}
+      {OTHERS.map((p, i) => {
+        const a = (i / OTHERS.length) * Math.PI * 2 - Math.PI / 2;
+        const x = size/2 + Math.cos(a) * r - 28;
+        const y = size/2 + Math.sin(a) * r - 28;
+        const isSpeaker = p.id === SPEAKER.id;
+        const isYou = highlightYou === p.id;
+        return (
+          <div key={p.id} style={{ position: 'absolute', left: x, top: y, textAlign: 'center', width: 56 }}>
+            <div style={{
+              width: 56, height: 56, borderRadius: '50%', background: p.color,
+              color: T.ink, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontFamily: T.fontDisplay, fontWeight: 700, fontSize: 22,
+              boxShadow: isSpeaker ? `0 0 0 3px ${T.bg}, 0 0 0 6px ${T.primary}` : 'none',
+              outline: isYou ? `2.5px dashed ${T.ink}` : 'none', outlineOffset: 4,
+            }}>{p.name[0]}</div>
+            <div style={{
+              fontFamily: T.fontMono, fontSize: 9, fontWeight: 700,
+              color: isSpeaker || isYou ? T.ink : T.inkSoft,
+              marginTop: 4, letterSpacing: 0.5,
+            }}>{isYou ? 'YOU' : p.name}</div>
+          </div>
+        );
+      })}
+
+      {/* hot seat center */}
+      <div style={{
+        position: 'absolute', inset: 0,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: 92, height: 92, borderRadius: '50%', background: HOT_SEAT.color,
+            color: T.ink, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontFamily: T.fontDisplay, fontWeight: 700, fontSize: 40,
+            border: T.cardBorder,
+            boxShadow: `0 0 0 3px ${T.bg}, 0 0 0 5px ${T.ink}`,
+            margin: '0 auto', position: 'relative',
+            outline: highlightYou === 'yas' ? `2.5px dashed ${T.ink}` : 'none', outlineOffset: 8,
+          }}>
+            {HOT_SEAT.name[0]}
+            <div style={{
+              position: 'absolute', top: -2, right: -2,
+              width: 18, height: 18, borderRadius: '50%',
+              background: T.primary, border: `2px solid ${T.bg}`,
+              animation: 'cc-pulse 1.4s ease-in-out infinite',
+            }} />
+          </div>
+          <div style={{
+            fontFamily: T.fontDisplay, fontWeight: 700, fontSize: 16,
+            color: T.ink, marginTop: 6, letterSpacing: T.letterSpacing,
+          }}>{highlightYou === 'yas' ? 'YOU' : HOT_SEAT.name}</div>
+          <div style={{
+            fontFamily: T.fontMono, fontSize: 9, fontWeight: 700,
+            letterSpacing: 1.5, color: T.inkSoft, marginTop: 2,
+          }}>HOT SEAT · AGAINST</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// SCREEN 1 — SIGNUP
+// "Who wants to talk to Yas?" — shown at round start or after vote-out
+// ─────────────────────────────────────────────────────────────
+function ScreenSignup({ onNav }) {
+  return (
+    <div style={{ width: '100%', height: '100%', background: T.bg, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <TopBar label="R3 · HOT SEAT" right="MANG" />
+      <TopicChip />
+
+      {/* circle — no speaker highlighted yet */}
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '8px 20px 0' }}>
+        <CircleDiagram highlightYou={null} />
+      </div>
+
+      {/* bottom */}
+      <div style={{ padding: '10px 20px 28px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div style={{
+          textAlign: 'center',
+          fontFamily: T.fontDisplay, fontWeight: 700, fontSize: 22,
+          color: T.ink, letterSpacing: T.letterSpacing, lineHeight: 1.1,
+        }}>Who wants to talk to {HOT_SEAT.name}?</div>
+        <button onClick={() => onNav('speaker')} style={{
+          width: '100%', height: 92, borderRadius: T.radius,
+          background: T.primary, color: T.primaryFg,
+          border: T.cardBorder, boxShadow: T.cardShadow,
+          fontFamily: T.fontDisplay, fontWeight: 700, fontSize: 26,
+          letterSpacing: T.letterSpacing, cursor: 'pointer',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3,
+        }}>
+          <span>YES, I'LL GO</span>
+          <span style={{ fontFamily: T.fontBody, fontWeight: 500, fontSize: 12, opacity: 0.85 }}>First tap gets the floor</span>
+        </button>
+        <Btn variant="outline" full onClick={() => {}}>Skip — let someone else</Btn>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// SCREEN 2 — SPECTATOR (Adam / Imane / Reda)
+// Circle + collapsible "now speaking" card + vote-kenza-out button
+// ─────────────────────────────────────────────────────────────
+function ScreenSpectator({ onNav }) {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div style={{ width: '100%', height: '100%', background: T.bg, display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative' }}>
+      <TopBar label="R3 · HOT SEAT" right="0:42" />
+      <TopicChip />
+
+      {/* circle */}
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '8px 20px 0' }}>
+        <CircleDiagram highlightYou={null} />
+      </div>
+
+      {/* bottom panel */}
+      <div style={{ padding: '8px 20px 24px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {/* tappable "now speaking" card */}
+        <Card padding={0} onClick={() => setExpanded(true)} style={{ cursor: 'pointer' }}>
+          <div style={{ padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 12 }}>
+            <Avatar p={SPEAKER} size={44} />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontFamily: T.fontMono, fontSize: 10, letterSpacing: 1.5, color: T.inkSoft }}>NOW SPEAKING</div>
+              <div style={{ fontFamily: T.fontDisplay, fontWeight: 700, fontSize: 18, color: T.ink, letterSpacing: T.letterSpacing, lineHeight: 1 }}>{SPEAKER.name}</div>
+              <div style={{ fontFamily: T.fontBody, fontSize: 11, color: T.inkSoft, marginTop: 2 }}>convincing {HOT_SEAT.name}</div>
+            </div>
+            <div style={{
+              padding: '6px 12px', borderRadius: 999, background: T.ink, color: T.bg,
+              fontFamily: T.fontMono, fontWeight: 700, fontSize: 14, letterSpacing: 1,
+            }}>0:42</div>
+          </div>
+          {/* swipe affordance */}
+          <div style={{ display: 'flex', justifyContent: 'center', paddingBottom: 8 }}>
+            <div style={{ width: 36, height: 4, borderRadius: 2, background: T.inkSoft, opacity: 0.35 }} />
+          </div>
+        </Card>
+
+        {/* vote out */}
+        <button onClick={() => onNav('signup')} style={{
+          width: '100%', height: 60, borderRadius: 999,
+          background: T.accents.coral, color: T.ink,
+          border: T.cardBorder, boxShadow: T.cardShadow,
+          fontFamily: T.fontDisplay, fontWeight: 700, fontSize: 17,
+          letterSpacing: T.letterSpacing, cursor: 'pointer',
+        }}>Vote {SPEAKER.name} out ✕</button>
+      </div>
+
+      {/* expanded overlay */}
+      {expanded && (
+        <div style={{
+          position: 'absolute', inset: 0, background: T.bg, zIndex: 10,
+          display: 'flex', flexDirection: 'column',
+          animation: 'cc-slide-up 0.26s ease-out',
+        }}>
+          {/* drag handle / close */}
+          <div onClick={() => setExpanded(false)} style={{
+            padding: '14px 0 8px', display: 'flex', justifyContent: 'center', cursor: 'pointer',
+          }}>
+            <div style={{ width: 48, height: 5, borderRadius: 3, background: T.inkSoft, opacity: 0.5 }} />
+          </div>
+          <div style={{ padding: '6px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ fontFamily: T.fontMono, fontSize: 11, letterSpacing: 2, color: T.inkSoft }}>NOW SPEAKING</div>
+            <div onClick={() => setExpanded(false)} style={{ fontSize: 22, color: T.ink, cursor: 'pointer', lineHeight: 1 }}>×</div>
+          </div>
+
+          {/* big speaker focus */}
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
+            <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} viewBox="0 0 393 560" preserveAspectRatio="xMidYMid slice">
+              {[80, 130, 180, 230, 280].map((r, i) => (
+                <circle key={i} cx="196" cy="260" r={r} fill="none" stroke={SPEAKER.color} strokeWidth="1.5" opacity={0.28 - i * 0.04} />
+              ))}
+            </svg>
+            <div style={{ position: 'relative', textAlign: 'center' }}>
+              <div style={{
+                width: 140, height: 140, borderRadius: '50%', background: SPEAKER.color,
+                color: T.ink, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontFamily: T.fontDisplay, fontWeight: 700, fontSize: 64,
+                border: T.cardBorder, boxShadow: `0 0 0 4px ${T.bg}, 0 0 0 6px ${T.ink}`,
+                margin: '0 auto',
+              }}>{SPEAKER.name[0]}</div>
+              <div style={{ fontFamily: T.fontDisplay, fontWeight: 700, fontSize: 48, color: T.ink, letterSpacing: '-0.03em', marginTop: 16, lineHeight: 1 }}>{SPEAKER.name}</div>
+              <div style={{ fontFamily: T.fontBody, fontSize: 14, color: T.inkSoft, marginTop: 6 }}>
+                convincing <span style={{ color: T.ink, fontWeight: 700 }}>{HOT_SEAT.name}</span>
+              </div>
+              <div style={{ fontFamily: T.fontDisplay, fontWeight: 700, fontSize: 72, color: T.ink, letterSpacing: '-0.04em', marginTop: 16, lineHeight: 1 }}>0:42</div>
+              <div style={{ width: 180, height: 8, borderRadius: 4, background: T.bgAlt, overflow: 'hidden', margin: '10px auto 0' }}>
+                <div style={{ width: '70%', height: '100%', background: T.primary }} />
+              </div>
+            </div>
+          </div>
+
+          {/* big vote-out */}
+          <div style={{ padding: '0 20px 28px' }}>
+            <button onClick={() => { setExpanded(false); onNav('signup'); }} style={{
+              width: '100%', height: 72, borderRadius: T.radius,
+              background: T.accents.coral, color: T.ink,
+              border: T.cardBorder, boxShadow: T.cardShadow,
+              fontFamily: T.fontDisplay, fontWeight: 700, fontSize: 22,
+              letterSpacing: T.letterSpacing, cursor: 'pointer',
+            }}>Vote {SPEAKER.name} out ✕</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// SCREEN 3 — SPEAKER (Kenza)
+// Her time + Surrender / Yas is convinced
+// ─────────────────────────────────────────────────────────────
+function ScreenSpeaker({ onNav }) {
+  return (
+    <div style={{ width: '100%', height: '100%', background: T.bg, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <TopBar label="R3 · HOT SEAT" right="MANG" />
+      <TopicChip />
+
+      {/* circle — Kenza highlighted */}
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '8px 20px 0' }}>
+        <CircleDiagram highlightYou="kenza" />
+      </div>
+
+      {/* bottom: primary hero countdown + 2 actions */}
+      <div style={{ padding: '8px 20px 28px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <Card color={T.primary} padding={16} style={{ textAlign: 'center' }}>
+          <div style={{ fontFamily: T.fontMono, fontSize: 10, letterSpacing: 1.5, color: T.primaryFg, opacity: 0.85 }}>
+            YOU HAVE THE FLOOR · TIME LEFT
+          </div>
+          <div style={{
+            fontFamily: T.fontDisplay, fontWeight: 700, fontSize: 72,
+            color: T.primaryFg, letterSpacing: '-0.04em', lineHeight: 1, marginTop: 6,
+          }}>0:42</div>
+          <div style={{ marginTop: 8, height: 6, borderRadius: 3, background: `${T.primaryFg}30`, overflow: 'hidden' }}>
+            <div style={{ width: '70%', height: '100%', background: T.primaryFg, borderRadius: 3 }} />
+          </div>
+        </Card>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <div style={{ flex: 1 }}>
+            <Btn variant="outline" full onClick={() => onNav('signup')}>Surrender</Btn>
+          </div>
+          <div style={{ flex: 2 }}>
+            <Btn full onClick={() => onNav('hotseat-convinced')}>{HOT_SEAT.name} is convinced me
+</Btn>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// SCREEN 4 — HOT SEAT (Yas)
+// Just timer + "Kenza convinced me"
+// ─────────────────────────────────────────────────────────────
+function ScreenHotSeatYas({ onNav }) {
+  return (
+    <div style={{ width: '100%', height: '100%', background: T.bg, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <TopBar label="R3 · HOT SEAT" right="MANG" />
+      <TopicChip />
+
+      {/* circle — Yas highlighted in center */}
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '8px 20px 0' }}>
+        <CircleDiagram highlightYou="yas" />
+      </div>
+
+      {/* bottom: minimal — timer + one action */}
+      <div style={{ padding: '8px 20px 28px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <Card padding={16} style={{ textAlign: 'center' }}>
+          <div style={{ fontFamily: T.fontMono, fontSize: 10, letterSpacing: 1.5, color: T.inkSoft }}>
+            {SPEAKER.name.toUpperCase()} IS SPEAKING
+          </div>
+          <div style={{
+            fontFamily: T.fontDisplay, fontWeight: 700, fontSize: 72,
+            color: T.ink, letterSpacing: '-0.04em', lineHeight: 1, marginTop: 6,
+          }}>0:42</div>
+          <div style={{ marginTop: 8, height: 6, borderRadius: 3, background: T.bgAlt, overflow: 'hidden' }}>
+            <div style={{ width: '70%', height: '100%', background: T.primary, borderRadius: 3 }} />
+          </div>
+        </Card>
+        <button onClick={() => onNav('convinced')} style={{
+          width: '100%', height: 80, borderRadius: T.radius,
+          background: T.accents.lime, color: T.ink,
+          border: T.cardBorder, boxShadow: T.cardShadow,
+          fontFamily: T.fontDisplay, fontWeight: 700, fontSize: 22,
+          letterSpacing: T.letterSpacing, cursor: 'pointer',
+          lineHeight: 1.15,
+        }}>{SPEAKER.name} convinced me ↻</button>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// SCREEN 5 — CONVINCED (after Yas taps / Kenza declares win)
+// ─────────────────────────────────────────────────────────────
+function ScreenConvinced({ onNav }) {
+  return (
+    <div style={{ width: '100%', height: '100%', background: T.accents.lime, display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
+      <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} viewBox="0 0 393 852" preserveAspectRatio="xMidYMid slice">
+        {[80, 140, 200, 260, 320].map((r, i) => (
+          <circle key={i} cx="196" cy="400" r={r} fill="none" stroke={T.ink} strokeWidth="1.5" opacity={0.18 - i * 0.02} />
+        ))}
+      </svg>
+      <div style={{ padding: '24px 20px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative' }}>
+        <div style={{ fontFamily: T.fontMono, fontSize: 11, letterSpacing: 2, color: T.ink, opacity: 0.7 }}>R3 · FLIP</div>
+        <div style={{ fontFamily: T.fontMono, fontSize: 11, color: T.ink, opacity: 0.7 }}>MANG</div>
+      </div>
+
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0 32px', position: 'relative', gap: 20 }}>
+        {/* avatars — Yas crosses to Kenza's side */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+          <div style={{ textAlign: 'center' }}>
+            <Avatar p={SPEAKER} size={80} />
+            <div style={{ fontFamily: T.fontDisplay, fontWeight: 700, fontSize: 18, color: T.ink, marginTop: 8 }}>{SPEAKER.name}</div>
+            <div style={{ fontFamily: T.fontMono, fontSize: 10, color: T.inkSoft, marginTop: 2 }}>CONVINCED HER</div>
+          </div>
+          <div style={{ fontFamily: T.fontDisplay, fontWeight: 700, fontSize: 32, color: T.ink }}>↻</div>
+          <div style={{ textAlign: 'center' }}>
+            <Avatar p={HOT_SEAT} size={80} />
+            <div style={{ fontFamily: T.fontDisplay, fontWeight: 700, fontSize: 18, color: T.ink, marginTop: 8 }}>{HOT_SEAT.name}</div>
+            <div style={{ fontFamily: T.fontMono, fontSize: 10, color: T.inkSoft, marginTop: 2 }}>FLIPPED</div>
+          </div>
+        </div>
+        <div style={{
+          fontFamily: T.fontDisplay, fontWeight: 700, fontSize: 40,
+          color: T.ink, letterSpacing: T.letterSpacing, textAlign: 'center', lineHeight: 1.05,
+        }}>{HOT_SEAT.name} crossed<br />the floor.</div>
+        <div style={{ fontFamily: T.fontBody, fontSize: 15, color: T.inkSoft, textAlign: 'center', lineHeight: 1.4 }}>
+          {SPEAKER.name} scores points for the flip.
+        </div>
+      </div>
+
+      <div style={{ padding: '0 20px 32px', position: 'relative', display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <Btn full size="lg" onClick={() => onNav('signup')}>Next challenger →</Btn>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// PHONE SHELL
+// ─────────────────────────────────────────────────────────────
+function Phone({ children }) {
+  return (
+    <div style={{
+      width: 393, height: 852, borderRadius: 52, overflow: 'hidden',
+      background: '#1a1410', position: 'relative',
+      boxShadow: '0 0 0 10px #1a1410, 0 40px 80px rgba(0,0,0,0.45)',
+    }}>
+      {/* notch */}
+      <div style={{
+        position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)',
+        width: 120, height: 34, background: '#1a1410', borderRadius: '0 0 18px 18px', zIndex: 20,
+      }} />
+      {/* status bar padding */}
+      <div style={{ paddingTop: 44, width: '100%', height: '100%', background: T.bg, position: 'relative' }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// OUTER WRAPPER — nav label + prev/next
+// ─────────────────────────────────────────────────────────────
+const SCREENS = [
+  { id: 'signup',   label: '1 · Signup',   Component: ScreenSignup },
+  { id: 'spectator',label: '2 · Spectator', Component: ScreenSpectator },
+  { id: 'speaker',  label: '3 · Kenza (speaker)', Component: ScreenSpeaker },
+  { id: 'hotseat',  label: '4 · Yas (hot seat)', Component: ScreenHotSeatYas },
+  { id: 'convinced',label: '5 · Convinced!', Component: ScreenConvinced },
+];
+
+function App() {
+  const [idx, setIdx] = useState(0);
+
+  function onNav(id) {
+    const i = SCREENS.findIndex(s => s.id === id);
+    if (i !== -1) setIdx(i);
+  }
+
+  const { label, Component } = SCREENS[idx];
+
+  return (
+    <div style={{
+      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20,
+      padding: '32px 20px 40px',
+    }}>
+      {/* title */}
+      <div style={{
+        fontFamily: T.fontDisplay, fontWeight: 700, fontSize: 13,
+        color: T.ink, letterSpacing: '0.08em', textTransform: 'uppercase',
+        display: 'flex', alignItems: 'center', gap: 10,
+      }}>
+        <svg width="20" height="20" viewBox="0 0 20 20">
+          {Array.from({length: 8}).map((_, i) => {
+            const a = (i/8)*Math.PI*2 - Math.PI/2;
+            const x = 10 + Math.cos(a)*7; const y = 10 + Math.sin(a)*7;
+            return <circle key={i} cx={x} cy={y} r={i===0?4:2} fill={i===0?T.primary:T.ink} opacity={i===0?1:0.7} />;
+          })}
+        </svg>
+        Cercles · Hot Seat Scenario
+      </div>
+
+      {/* screen nav pills */}
+      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center' }}>
+        {SCREENS.map((s, i) => (
+          <button key={s.id} onClick={() => setIdx(i)} style={{
+            padding: '6px 14px', borderRadius: 999, border: 'none', cursor: 'pointer',
+            background: i === idx ? T.ink : 'transparent',
+            color: i === idx ? T.bg : T.ink,
+            outline: i !== idx ? `1px solid rgba(26,20,16,0.25)` : 'none',
+            fontFamily: T.fontDisplay, fontWeight: 600, fontSize: 12,
+          }}>{s.label}</button>
+        ))}
+      </div>
+
+      {/* phone */}
+      <Phone>
+        <Component onNav={onNav} />
+      </Phone>
+
+      {/* prev / next */}
+      <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+        <button onClick={() => setIdx(i => Math.max(0, i-1))} style={{
+          padding: '10px 18px', borderRadius: 999, border: 'none', cursor: 'pointer',
+          background: 'transparent', color: T.ink,
+          outline: `1px solid rgba(26,20,16,0.25)`,
+          fontFamily: T.fontDisplay, fontWeight: 600, fontSize: 13,
+          opacity: idx === 0 ? 0.3 : 1,
+        }}>← Prev</button>
+        <div style={{ fontFamily: T.fontMono, fontSize: 12, color: T.inkSoft }}>
+          {idx + 1} / {SCREENS.length} · {label}
+        </div>
+        <button onClick={() => setIdx(i => Math.min(SCREENS.length-1, i+1))} style={{
+          padding: '10px 18px', borderRadius: 999, border: 'none', cursor: 'pointer',
+          background: T.primary, color: T.primaryFg,
+          fontFamily: T.fontDisplay, fontWeight: 600, fontSize: 13,
+          opacity: idx === SCREENS.length-1 ? 0.3 : 1,
+        }}>Next →</button>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+
+</script>
+</body>
+</html>

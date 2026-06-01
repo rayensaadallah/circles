@@ -89,25 +89,37 @@ Avatar is selected once during onboarding and can be changed in Profile settings
 1. One person creates a room and shares the room code
 2. Others join using that code (must be physically present)
 3. A topic appears on everyone's screen
-4. Each player picks their position: **Agree / Disagree / Undecided**
-5. The Agree side speaks first and explains their position out loud
-6. The Disagree side responds — debate begins out loud
-7. A timer runs (set by host: 2, 3, 5, or 10 minutes)
-8. When time is up → next topic
+4. Each player picks their position: **Agree or Disagree** (no undecided — everyone must vote)
+5. The app checks the vote split → determines which mode to run
+6. After the debate round → **revote** (Agree or Disagree again)
+7. Players who changed their opinion must tag who convinced them
+8. Scores update → next topic
 9. Repeat until all topics are done
 10. Final scores shown at the end
 
 ---
 
-## HOT SEAT MECHANIC
+## DEBATE MODES
 
-Triggered when only 1 or 2 players hold a minority opinion.
+### MODE 1 — HOT SEAT (1 person is alone on their side)
 
-- Minority player is placed in the **Hot Seat**
-- All other players race to tap a button — first one wins
-- Winner debates the Hot Seat player 1v1 out loud
-- If 50%+ of the room votes to **Flag** the debater (bad argument), the button race opens again
-- Continues until time runs out or the minority person changes their mind
+Triggered when exactly **1 player** is on one side (e.g. 1 Agree vs 5 Disagree).
+
+- Screen shows a **circle with the lone player in the center**
+- All other players see a **tap button** on their phone
+- **First to tap** gets to debate the center person 1v1 out loud (tries to convince them)
+- The rest of the room can **vote out** the current debater if his argument is weak
+- If voted out → button race opens again → next person to tap goes in
+- Repeats until the center person changes their mind, or everyone has had a turn
+
+### MODE 2 — STRUCTURED DEBATE (2+ players on each side)
+
+Triggered when both sides have at least 2 players.
+
+- Players who said **Agree** each speak one by one out loud
+- Then players who said **Disagree** each speak one by one out loud
+- After everyone has spoken → **revote** (Agree or Disagree)
+- Players who changed their vote must tag **who convinced them** (used for scoring)
 
 ---
 

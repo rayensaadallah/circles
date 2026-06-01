@@ -1,0 +1,178 @@
+[
+  {
+    "id": "fun",
+    "label": "Fun",
+    "icon": "🎉",
+    "questions": [
+      "Pineapple belongs on pizza",
+      "Cats are better than dogs",
+      "Summer is better than winter",
+      "Morning people have better lives than night owls",
+      "Cereal before milk is the only correct way",
+      "A hot dog is a sandwich",
+      "GIFs should be pronounced 'jif'",
+      "The best superpower is invisibility, not flying",
+      "Toilet paper should go over, not under",
+      "Monopoly ruins friendships more than it creates them",
+      "The movie is always better than the book",
+      "Dessert should come before dinner",
+      "Silence is better background noise than music while working",
+      "Theme parks are overrated",
+      "You should always eat the last slice without asking"
+    ]
+  },
+  {
+    "id": "lifestyle",
+    "label": "Lifestyle",
+    "icon": "✦",
+    "questions": [
+      "Remote work is better than office work",
+      "Social media does more harm than good",
+      "You should tell your friends uncomfortable truths",
+      "A tidy home leads to a tidy mind",
+      "Routines kill spontaneity",
+      "It's better to rent than to own",
+      "You should keep your salary secret from friends",
+      "Hustle culture is toxic",
+      "Having fewer close friends is better than many casual ones",
+      "Journaling is a waste of time",
+      "Living in a big city is better than the countryside",
+      "You should never lend money to friends",
+      "Taking a gap year is a mistake",
+      "People should work to live, not live to work",
+      "Spending on experiences beats spending on things"
+    ]
+  },
+  {
+    "id": "relationships",
+    "label": "Relationships",
+    "icon": "◎",
+    "questions": [
+      "Long-distance relationships never work",
+      "You should share all your passwords with your partner",
+      "Age gaps in relationships are always problematic",
+      "Exes can't be just friends",
+      "You should marry your best friend",
+      "Open relationships are just as valid as monogamy",
+      "Couples who argue are healthier than couples who don't",
+      "You should never go to sleep angry",
+      "Social media is the biggest threat to modern relationships",
+      "Moving in together before marriage is essential",
+      "Love at first sight is real",
+      "Friendship is more important than romantic love",
+      "It's acceptable to snoop on your partner's phone",
+      "Children make a relationship stronger",
+      "You can choose who you fall in love with"
+    ]
+  },
+  {
+    "id": "philosophy",
+    "label": "Philosophy",
+    "icon": "∞",
+    "questions": [
+      "Free will is an illusion",
+      "Morality is objective, not subjective",
+      "A fulfilling life requires suffering",
+      "The ends justify the means",
+      "Humans are fundamentally selfish",
+      "Ignorance is bliss",
+      "It's better to be honest than kind",
+      "Life has inherent meaning",
+      "Progress is always good",
+      "Justice and fairness are the same thing",
+      "It's possible to be truly selfless",
+      "Technology makes us less human",
+      "The present moment is all that matters",
+      "Society needs rules more than freedom",
+      "Failure is more valuable than success"
+    ]
+  },
+  {
+    "id": "politics",
+    "label": "Politics",
+    "icon": "⚖",
+    "questions": [
+      "Voting should be mandatory",
+      "Wealth taxes are fair",
+      "Open borders would benefit society",
+      "Social media should be regulated by governments",
+      "Universal basic income would work",
+      "Prisons should focus on rehabilitation, not punishment",
+      "The death penalty can ever be justified",
+      "Governments should control the price of essential goods",
+      "Democracy is the best form of government",
+      "Affirmative action is fair",
+      "Nuclear energy is essential for the future",
+      "Drugs should be decriminalized",
+      "Lobbying is legal corruption",
+      "Free speech has limits",
+      "Nations have a duty to accept refugees"
+    ]
+  },
+  {
+    "id": "tech",
+    "label": "Tech",
+    "icon": "◈",
+    "questions": [
+      "AI will do more harm than good",
+      "Privacy is dead and we should accept it",
+      "Social media algorithms radicalize people",
+      "Everyone should learn to code",
+      "Cryptocurrency is a scam",
+      "Screen time limits for children are the parents' job, not the state's",
+      "The internet has made us dumber",
+      "Tech billionaires have too much power",
+      "Self-driving cars are safer than human drivers",
+      "Video games cause violence",
+      "Working in tech is overrated",
+      "The metaverse will replace real-world experiences",
+      "You should own your data",
+      "Automation will create more jobs than it destroys",
+      "Smartphones have made us less social"
+    ]
+  },
+  {
+    "id": "hot_takes",
+    "label": "Hot Takes",
+    "icon": "🔥",
+    "questions": [
+      "Nice guys finish last",
+      "Nepotism is just networking",
+      "Participation trophies are harmful",
+      "Cancel culture has gone too far",
+      "Beauty standards are always someone's fault",
+      "True crime content glamorizes violence",
+      "Influencers are a legitimate career",
+      "Tipping culture should be abolished",
+      "Millennials had it easier than Gen Z",
+      "Art has no value unless it makes money",
+      "Professional sports are a waste of public money",
+      "People who don't vote have no right to complain",
+      "Comfort zones should be broken regularly",
+      "Fame is a curse more than a gift",
+      "Traditional gender roles still serve a purpose"
+    ]
+  },
+  {
+    "id": "would_you_rather",
+    "label": "Would You Rather",
+    "icon": "⇄",
+    "questions": [
+      "Be rich and unknown vs famous and broke",
+      "Know when you'll die vs know how you'll die",
+      "Have no internet for a year vs no human contact for a month",
+      "Always say what you think vs never speak again",
+      "Live 200 years in mediocrity vs 40 years at your peak",
+      "Read minds vs see the future",
+      "Be the funniest person in the room vs the smartest",
+      "Lose all your memories vs never make new ones",
+      "Have one true love vs ten great friendships",
+      "Be always cold vs always hot",
+      "Work a job you hate for 10 years and retire vs enjoy work forever",
+      "Have perfect health vs perfect wealth",
+      "Always be 10 minutes late vs always be 1 hour early",
+      "Know every language vs play every instrument",
+      "Live in the past vs the future"
+    ]
+  }
+]
